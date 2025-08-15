@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>index.lamponescu.uk</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cae;
+            --accent-color: #ff7e5f;
+            --text-color: #333;
+            --light-text: #f8f9fa;
+            --today-color: #ff7e5f;
+            --uploaded-color: #4caf50;
+            --missing-color: #f44336;
+            --day-bg: rgba(255, 255, 255, 0.85);
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .login-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-form button:hover {
+            background: var(--accent-color);
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .remember-me input {
+            width: auto;
+            margin-right: 0.5rem;
+            margin-bottom: 0;
+        }
+
+        .error-message {
+            color: var(--missing-color);
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            display: none;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .title-animation {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .month-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .month-selector button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .month-selector button:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.1);
+        }
+
+        .month-selector h2 {
+            font-size: 1.8rem;
+            min-width: 200px;
+        }
+
+        .calendar-wrapper {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .weekday-header {
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .calendar-day {
+            background: var(--day-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .day-number {
+            font-size: 1.2rem;
+        }
+
+        .day-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .upload-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .file-present {
+            color: var(--uploaded-color);
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
+        .today {
+            border: 2px solid var(--today-color);
+        }
+
+        .github-token-container {
+            background: var(--day-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .github-token-container input {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin: 0.5rem;
+            width: 300px;
+            max-width: 100%;
+        }
+
+        .github-token-container button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .github-token-container button:hover {
+            background: var(--accent-color);
+        }
+
+        .small-note {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .empty-day {
+            visibility: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .calendar-wrapper {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .weekday-header {
+                display: none;
+            }
+            
+            .title-animation {
+                font-size: 2rem;
+            }
+            
+            .month-selector h2 {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-wrapper {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="login-container">
+        <div class="login-form">
+            <h2>Autentificare</h2>
+            <input type="text" id="username" placeholder="Nume utilizator">
+            <input type="password" id="password" placeholder="Parolă">
+            <div class="remember-me">
+                <input type="checkbox" id="remember-me">
+                <label for="remember-me">Ține-mă minte</label>
+            </div>
+            <button id="login-btn">Conectează-te</button>
+            <div class="error-message" id="error-message"></div>
+        </div>
+    </div>
+
+    <div class="container" id="app-container">
+        <header>
+            <h1 class="title-animation">index.lamponescu.uk</h1>
+            <div class="month-selector">
+                <button id="prev-month">←</button>
+                <h2 id="current-month">August 2025</h2>
+                <button id="next-month">→</button>
+            </div>
+        </header>
+
+        <div class="calendar-wrapper" id="calendar">
+            <!-- Calendar will be generated here -->
+        </div>
+
+        <div class="github-token-container" id="token-container">
+            <p>Pentru a accesa fișierele existente, introduceți un token GitHub (opțional):</p>
+            <input type="password" id="github-token" placeholder="Token GitHub">
+            <button id="save-token">Salvează</button>
+            <p class="small-note">Token-ul este salvat doar în browser-ul tău și este necesar doar dacă depozitul este privat.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuration
+            const correctUsername = "lapadatcosmin";
+            const correctPassword = "Cosmin17";
+            const authCookieName = "apometre_auth";
+            const authCookieExpiryDays = 30;
+            
+            // App configuration
+            const repoOwner = 'lampocf';
+            const repoName = 'index';
+            const pdfFolder = 'apometre-index';
+            const weekdays = ['Lu', 'Ma', 'Mi', 'Jo', 'Vi', 'Sâ', 'Du'];
+            
+            // DOM elements
+            const loginContainer = document.getElementById('login-container');
+            const appContainer = document.getElementById('app-container');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const rememberMeCheckbox = document.getElementById('remember-me');
+            const loginBtn = document.getElementById('login-btn');
+            const errorMessage = document.getElementById('error-message');
+            
+            // Check for existing auth cookie
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+            
+            const authCookie = getCookie(authCookieName);
+            if (authCookie) {
+                try {
+                    const authData = JSON.parse(decodeURIComponent(authCookie));
+                    if (authData.username === correctUsername && authData.password === correctPassword) {
+                        // Auto-login with cookie
+                        loginContainer.style.display = 'none';
+                        appContainer.style.display = 'block';
+                        initializeApp();
+                    } else {
+                        // Invalid cookie - remove it
+                        document.cookie = `${authCookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                    }
+                } catch (e) {
+                    console.error('Error parsing auth cookie:', e);
+                }
+            }
+            
+            // Login event listener
+            loginBtn.addEventListener('click', function() {
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value;
+                const rememberMe = rememberMeCheckbox.checked;
+                
+                if (username === correctUsername && password === correctPassword) {
+                    // Successful login
+                    if (rememberMe) {
+                        // Set cookie with auth data
+                        const authData = {
+                            username: username,
+                            password: password
+                        };
+                        const expiryDate = new Date();
+                        expiryDate.setDate(expiryDate.getDate() + authCookieExpiryDays);
+                        document.cookie = `${authCookieName}=${encodeURIComponent(JSON.stringify(authData))}; expires=${expiryDate.toUTCString()}; path=/`;
+                    }
+                    
+                    loginContainer.style.display = 'none';
+                    appContainer.style.display = 'block';
+                    initializeApp();
+                } else {
+                    errorMessage.textContent = 'Nume de utilizator sau parolă incorectă';
+                }
+            });
+            
+            // Also allow login with Enter key
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
+            });
+            
+            function initializeApp() {
+                // State variables
+                let currentDate = new Date();
+                let currentMonth = currentDate.getMonth();
+                let currentYear = currentDate.getFullYear();
+                let githubToken = localStorage.getItem('githubToken') || '';
+                
+                // DOM elements
+                const calendarEl = document.getElementById('calendar');
+                const currentMonthEl = document.getElementById('current-month');
+                const prevMonthBtn = document.getElementById('prev-month');
+                const nextMonthBtn = document.getElementById('next-month');
+                const githubTokenInput = document.getElementById('github-token');
+                const saveTokenBtn = document.getElementById('save-token');
+                const tokenContainer = document.getElementById('token-container');
+                
+                // Initialize
+                if (githubToken) {
+                    githubTokenInput.value = githubToken;
+                }
+                
+                renderCalendar();
+                
+                // Event listeners
+                prevMonthBtn.addEventListener('click', () => {
+                    currentMonth--;
+                    if (currentMonth < 0) {
+                        currentMonth = 11;
+                        currentYear--;
+                    }
+                    renderCalendar();
+                });
+                
+                nextMonthBtn.addEventListener('click', () => {
+                    currentMonth++;
+                    if (currentMonth > 11) {
+                        currentMonth = 0;
+                        currentYear++;
+                    }
+                    renderCalendar();
+                });
+                
+                saveTokenBtn.addEventListener('click', () => {
+                    githubToken = githubTokenInput.value.trim();
+                    localStorage.setItem('githubToken', githubToken);
+                    alert('Token salvat!');
+                    renderCalendar();
+                });
+                
+                // Functions
+                function renderCalendar() {
+                    const monthNames = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 
+                                       'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'];
+                    currentMonthEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+                    
+                    const firstDay = new Date(currentYear, currentMonth, 1);
+                    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+                    const daysInMonth = lastDay.getDate();
+                    
+                    let startingWeekday = firstDay.getDay();
+                    startingWeekday = startingWeekday === 0 ? 6 : startingWeekday - 1;
+                    
+                    calendarEl.innerHTML = '';
+                    
+                    weekdays.forEach(day => {
+                        const header = document.createElement('div');
+                        header.className = 'weekday-header';
+                        header.textContent = day;
+                        calendarEl.appendChild(header);
+                    });
+                    
+                    for (let i = 0; i < startingWeekday; i++) {
+                        const emptyDay = document.createElement('div');
+                        emptyDay.className = 'empty-day';
+                        calendarEl.appendChild(emptyDay);
+                    }
+                    
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const date = new Date(currentYear, currentMonth, day);
+                        calendarEl.appendChild(createDayElement(day, date));
+                    }
+                    
+                    loadPdfFilesForMonth();
+                }
+                
+                function createDayElement(day, date) {
+                    const dayEl = document.createElement('div');
+                    dayEl.className = 'calendar-day';
+                    
+                    const today = new Date();
+                    if (date.getDate() === today.getDate() && 
+                        date.getMonth() === today.getMonth() && 
+                        date.getFullYear() === today.getFullYear()) {
+                        dayEl.classList.add('today');
+                    }
+                    
+                    const formattedDate = formatDateForFolder(date);
+                    
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'day-header';
+                    dayHeader.innerHTML = `<span class="day-number">${day}</span>`;
+                    
+                    const dayContent = document.createElement('div');
+                    dayContent.className = 'day-content';
+                    dayContent.innerHTML = `
+                        <div class="file-status">Se încarcă...</div>
+                        <button class="upload-btn" data-date="${formattedDate}">Încarcă PDF</button>
+                    `;
+                    
+                    dayEl.appendChild(dayHeader);
+                    dayEl.appendChild(dayContent);
+                    
+                    return dayEl;
+                }
+                
+                function formatDateForFolder(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}/${month}/${day}`;
+                }
+                
+                async function loadPdfFilesForMonth() {
+                    const year = currentYear;
+                    const month = String(currentMonth + 1).padStart(2, '0');
+                    const monthFolder = `${year}/${month}`;
+                    
+                    try {
+                        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${pdfFolder}/${monthFolder}`;
+                        
+                        const headers = {};
+                        if (githubToken) {
+                            headers['Authorization'] = `token ${githubToken}`;
+                        }
+                        
+                        const response = await fetch(apiUrl, { headers });
+                        
+                        if (!response.ok) {
+                            if (response.status === 404) {
+                                markDaysWithoutFiles();
+                                return;
+                            }
+                            throw new Error(`GitHub API error: ${response.status}`);
+                        }
+                        
+                        const folders = await response.json();
+                        
+                        for (const folder of folders) {
+                            if (folder.type === 'dir') {
+                                const day = folder.name;
+                                try {
+                                    const dayApiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${pdfFolder}/${monthFolder}/${day}`;
+                                    const dayResponse = await fetch(dayApiUrl, { headers });
+                                    
+                                    if (dayResponse.ok) {
+                                        const files = await dayResponse.json();
+                                        const pdfFile = files.find(file => file.name.endsWith('.pdf'));
+                                        
+                                        if (pdfFile) {
+                                            updateFileStatus(`${year}-${month}-${day}`, pdfFile.download_url);
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error(`Error checking day ${day}:`, error);
+                                }
+                            }
+                        }
+                        
+                        markDaysWithoutFiles();
+                        
+                    } catch (error) {
+                        console.error('Error loading PDF files:', error);
+                        markDaysWithoutFiles();
+                        
+                        if (error.message.includes('401')) {
+                            alert('Eroare de autentificare. Verificați token-ul GitHub.');
+                        } else if (error.message.includes('404')) {
+                            markDaysWithoutFiles();
+                        } else {
+                            alert('Eroare la încărcarea fișierelor. Verificați conexiunea la internet.');
+                        }
+                    }
+                }
+                
+                function updateFileStatus(dateString, downloadUrl = null) {
+                    const day = parseInt(dateString.split('-')[2]);
+                    const dayElements = document.querySelectorAll('.day-number');
+                    
+                    dayElements.forEach(dayEl => {
+                        if (parseInt(dayEl.textContent) === day) {
+                            const dayContent = dayEl.closest('.calendar-day').querySelector('.day-content');
+                            const fileStatus = dayContent.querySelector('.file-status');
+                            const uploadBtn = dayContent.querySelector('.upload-btn');
+                            
+                            if (downloadUrl) {
+                                fileStatus.innerHTML = `<span class="file-present">Fișier încărcat</span>`;
+                                uploadBtn.textContent = 'Vezi PDF';
+                                uploadBtn.onclick = () => window.open(downloadUrl, '_blank');
+                            } else {
+                                fileStatus.textContent = 'Lipsă fișier';
+                                setupUploadButton(uploadBtn, dateString);
+                            }
+                        }
+                    });
+                }
+                
+                function markDaysWithoutFiles() {
+                    const dayContents = document.querySelectorAll('.day-content');
+                    dayContents.forEach(content => {
+                        const fileStatus = content.querySelector('.file-status');
+                        const uploadBtn = content.querySelector('.upload-btn');
+                        
+                        if (fileStatus.textContent === 'Se încarcă...') {
+                            fileStatus.textContent = 'Lipsă fișier';
+                            const fullDateString = uploadBtn.dataset.date;
+                            const [year, month, day] = fullDateString.split('/');
+                            const dateString = `${year}-${month}-${day}`;
+                            setupUploadButton(uploadBtn, dateString);
+                        }
+                    });
+                }
+                
+                function setupUploadButton(button, dateString) {
+                    button.textContent = 'Încarcă PDF';
+                    button.onclick = () => {
+                        const [year, month, day] = dateString.split('-');
+                        const uploadUrl = `https://github.com/${repoOwner}/${repoName}/upload/main/${pdfFolder}/${year}/${month}/${day}`;
+                        window.open(uploadUrl, '_blank');
+                    };
+                }
+                
+                currentMonth = currentDate.getMonth();
+                currentYear = currentDate.getFullYear();
+            }
+        });
+    </script>
+</body>
+</html>
